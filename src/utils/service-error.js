@@ -1,6 +1,6 @@
 const {StatusCodes} = require('http-status-codes');
 
-class ServerError extends Error {
+class ServiceError extends Error {
     constructor(
         message = 'Something Went Wrong',
         explaination = 'Server Layer Error',
@@ -14,4 +14,4 @@ class ServerError extends Error {
     }
 }
 
-module.exports = ServerError;
+module.exports = ServiceError;
