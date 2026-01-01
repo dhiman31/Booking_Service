@@ -1,7 +1,10 @@
-const { createBooking } = require("./bookingController");
+const { createBooking, cancelBooking , modifyBooking, getAllBookings} = require("./bookingController");
 
 const BookController = {
-    createBooking
+    createBooking,
+    cancelBooking,
+    modifyBooking,
+    getAllBookings
 }
 
 module.exports = {

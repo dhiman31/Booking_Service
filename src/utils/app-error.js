@@ -4,13 +4,13 @@ class AppError extends Error {
         name,
         message,
         explaination,
-        statusCodes
+        statusCode
     ){
         super();
         this.name = name;
         this.message = message;
         this.explaination = explaination;
-        this.statusCodes = statusCodes;
+        this.statusCode = statusCode;
     }
 }
 
