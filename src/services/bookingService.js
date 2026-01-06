@@ -4,6 +4,7 @@ const axios = require('axios');
 const {Booking} = require('../models/index');
 const {FLIGHT_SERVICE_PATH} = require('../config/serverConfig');
 const { StatusCodes } = require('http-status-codes');
+const { publishMessage } = require('../utils/messageQueue');
 
 class BookingService {
     constructor(){
@@ -38,6 +39,22 @@ class BookingService {
             const updateFlightRequestUrl = `${FLIGHT_SERVICE_PATH}/api/v1/flights/${flightId}`;
             await axios.patch(updateFlightRequestUrl,{totalSeats:flightData.totalSeats-data.noOfSeats});
             const finalBooking = await this.BookingRepository.updateBooking(booking.id,{ status: 'Booked' });
+
+            const departureTime = new Date(flightData.departureTime);
+            const notificationTime = new Date(
+            departureTime.getTime() - 24 * 60 * 60 * 1000
+            );
+
+             await publishMessage('booking.confirmed',
+                // message
+                {
+                    bookingId: booking.id,
+                    recepientEmail: 'ankushiiituna@gmail.com',        // from request body
+                    subject: `Booking Confirmed`,
+                    content: `Your booking for flight ${flightData.flightNumber} is confirmed.`,
+                    notificationTime: notificationTime
+                });
+
             return finalBooking
             
         } catch (error) {
