@@ -2,9 +2,10 @@ const {BookingRepository} = require('../repository/index');
 const { ServiceError, ValidationError, AppError } = require('../utils');
 const axios = require('axios');
 const {Booking} = require('../models/index');
-const {FLIGHT_SERVICE_PATH} = require('../config/serverConfig');
+const {FLIGHT_SERVICE_PATH, JWT_SECRET} = require('../config/serverConfig');
 const { StatusCodes } = require('http-status-codes');
 const { publishMessage } = require('../utils/messageQueue');
+const jwt = require('jsonwebtoken');
 
 class BookingService {
     constructor(){
@@ -16,13 +17,18 @@ class BookingService {
         try {
 
             // parallel requests can also be sent by promise.all
+            const userToken = data.token;
+            const decoded = jwt.verify(userToken,JWT_SECRET);
 
-            const { userId, flightId, noOfSeats } = data;
+            const userId = decoded.id;
+            const emailId = decoded.email;
+            const { flightId, noOfSeats } = data;
+
             const getFlightRequestUrl = `${FLIGHT_SERVICE_PATH}/api/v1/flights/${flightId}`;
             const getResponse = await axios.get(getFlightRequestUrl);
             const flightData = getResponse.data.data;
             let priceOfFlight = flightData.price;
-            if(data.noOfSeats > flightData.totalSeats){
+            if(noOfSeats > flightData.totalSeats){
                 throw new ServiceError(
                     'Something went wrong in booking process',
                     'Insufficient seats in the flight'
@@ -45,11 +51,13 @@ class BookingService {
             departureTime.getTime() - 24 * 60 * 60 * 1000
             );
 
-             await publishMessage('booking.confirmed',
+            
+
+            await publishMessage('booking.confirmed',
                 // message
                 {
                     bookingId: booking.id,
-                    recepientEmail: 'ankushiiituna@gmail.com',        // from request body
+                    recepientEmail: emailId,        // from request body
                     subject: `Booking Confirmed`,
                     content: `Your booking for flight ${flightData.flightNumber} is confirmed.`,
                     notificationTime: notificationTime

@@ -6,8 +6,20 @@ const BookingServ = new BookingService();
 
 const createBooking = async (req,res) => {
     try {
+        const token = req.headers['x-access-token'];
+        if (!token) {
+            return res.status(401).json({ message: 'Token missing' });
+        }
+        const flightId = req.body.flightId;
+        const noOfSeats = req.body.noOfSeats;
         
-        const booking = await BookingServ.createBooking(req.body);
+        const booking = await BookingServ.createBooking(
+            {
+                token : token,
+                flightId : flightId,
+                noOfSeats : noOfSeats
+            }
+        );
         return res.status(StatusCodes.OK).json({
             data : booking,
             success : true,
