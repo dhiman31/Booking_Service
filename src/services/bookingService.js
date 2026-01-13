@@ -51,15 +51,15 @@ class BookingService {
             departureTime.getTime() - 24 * 60 * 60 * 1000
             );
 
-            
+
 
             await publishMessage('booking.confirmed',
                 // message
                 {
                     bookingId: booking.id,
                     recepientEmail: emailId,        // from request body
-                    subject: `Booking Confirmed`,
-                    content: `Your booking for flight ${flightData.flightNumber} is confirmed.`,
+                    subject: `Boarding Reminder`,
+                    content: `This is a reminder notification for boarding of your flight ${flightData.flightNumber} which will depart in 24 Hrs`,
                     notificationTime: notificationTime
                 });
 
